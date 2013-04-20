@@ -1,19 +1,9 @@
 package models
 
-import play.api._
-import play.api.mvc._
+import play.api._, mvc._
 
 
-class LatLong(_latitude: Float, _longitude: Float){
+class LatLong(val latitude: Float, val longitude: Float)
 
-      def latitude: Float = { _latitude; }
-      def longitude: Float = { _longitude }
-}
-
-
-class Region(northWestCorner: LatLong, southEastCorner: LatLong) = {
-
-      def NW: LatLong = { northWestCorner; }
-      def SE: LatLong = { southEastCorner; }
-}
+class Region(val northWestCorner: LatLong, val southEastCorner: LatLong, val name: String = "anonymous")
 
