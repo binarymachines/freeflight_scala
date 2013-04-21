@@ -1,11 +1,10 @@
 package models
 
-
-
-
 import akka.actor.{ Actor, ActorRef, ActorSystem, Props, FSM }
 import akka.event.Logging
 import scala.concurrent.duration._
+
+import scala.collection.mutable.HashMap
 
 
 sealed trait AircraftState
@@ -40,10 +39,16 @@ class Aircraft(val transponderID: String, var _altitude: Int) extends Actor with
       	  //if(behaviorMap.contains())
       	  //var behavior = behaviorMap.get
       	  case s: AircraftState => {
-	       log.info(s"We received a state change message.")	       
-	  }  
+	       log.info(s"We received a state change message $s.")
 
-	  
+	       if(behaviorMap.contains(s)){
+		  var behavior = behaviorMap(s)
+		  behavior.trigger(this)
+	       }
+	       else{
+		  log.info(s"No behavior specified for aircraft state $s.")
+	       }
+	  }  
       }
 
       def climb(newAltitude: Int) = {
@@ -55,8 +60,9 @@ class Aircraft(val transponderID: String, var _altitude: Int) extends Actor with
       	  _altitude = newAltitude;
       }
 
-      def addBehavior(state: AircraftState, behavior: AircraftBehavior) = {
-      	  // TODO: figure out a Behavior class
+      def addBehavior(state: AircraftState, behavior: AircraftBehavior): Aircraft = {
+      	  behaviorMap += (state -> behavior)
+	  return this
       }
 }
 
@@ -64,7 +70,7 @@ class Aircraft(val transponderID: String, var _altitude: Int) extends Actor with
 
 class LitBehavior extends AircraftBehavior{
       def trigger(target: Aircraft) = {
-      	  log.info("Triggering the aircraft light-up behavior.")
+      	  println("Triggering the aircraft light-up behavior.")
       	  //log.info(s"Aircraft $transponderID is lit up.")   
       }
 }
@@ -73,7 +79,8 @@ class LitBehavior extends AircraftBehavior{
 class TaxiBehavior extends AircraftBehavior{
 
       def trigger(target: Aircraft) = {
-      	  log.info("Triggering the aircraft taxi behavior.")
+      	  println("Triggering the aircraft taxi behavior.")
       	  //log.info(s"Aircraft $transponderID is lit up.")   
       }
 }
+
