@@ -15,6 +15,8 @@ class Simulation extends Actor {
   val events = new ListBuffer[Event[_]]()
   val aircrafts = new ListBuffer()
   
+  val randomGen = new java.util.Random
+  
   def receive = {
     case Tick => println("tick")
     case GetEvents(lastEventId) => sender ! events.toList //.takeWhile(_.id != lastEventId).toList
@@ -22,7 +24,7 @@ class Simulation extends Actor {
       println("Added aircraft")
       
       // add aircraft
-      logEvent(AircraftAddedEvent(0L, aircraft))
+      logEvent(AircraftAddedEvent(randomGen.nextLong(), aircraft))
     }
   }
   
@@ -34,18 +36,19 @@ class Simulation extends Actor {
 
 object Simulation {
   class Command
-  case object Tick extends Command
+  case object Tick extends Command // is a 'tick' actually needed? maybe it can all be scheduled using time
   case class GetEvents (lastEventId: Long) extends Command
   case class AddAircraft(aircraft: Aircraft)
 }
 
 sealed abstract class Event [T:Format](val eventType: String) {self: T =>
-  def id: Long
-  def toJson = Json.obj("eventType"->eventType, "eventId" -> id) ++ Json.toJson(this).asInstanceOf[JsObject]
+  def eventId: Long
+  def toJson = Json.obj("eventType"->eventType) ++ Json.toJson(this).asInstanceOf[JsObject]
 }
 
 object Event {
-  case class AircraftAddedEvent(id: Long, target: Aircraft) extends Event[AircraftAddedEvent]("aircraft_added")
+  case class AircraftAddedEvent(eventId: Long, target: Aircraft)           extends Event[AircraftAddedEvent]("aircraft_added")
+  case class AircraftVelocityChangedEvent(eventId: Long, target: Aircraft) extends Event[AircraftVelocityChangedEvent]("aircraft_velocity_changed")
 }
 
 object Simulator {
@@ -60,8 +63,8 @@ object Simulator {
     
     // add a couple of aircraft
     system.scheduler.scheduleOnce(5 seconds) {
-      simulation ! Simulation.AddAircraft(Aircraft("a", 2))
-      simulation ! Simulation.AddAircraft(Aircraft("b", 3))
+      simulation ! Simulation.AddAircraft(Aircraft("a", 2, LatLong(40.753716F, -73.988285F)))
+      simulation ! Simulation.AddAircraft(Aircraft("b", 3, LatLong(40.778938F, -73.967857F)))
     }
   }
 }
