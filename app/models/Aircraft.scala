@@ -33,19 +33,17 @@ class Aircraft(val transponderID: String, var _altitude: Int) extends Actor with
       def provision() = {}
       def load() = {}
       def unload = {}
-      
 
-      //def apply(transponderID: String, )
+      var behaviorMap = new HashMap[AircraftState, AircraftBehavior]()
 
       def receive = {
-      	  // TODO: figure out some kind of polymorphic dispatch
-      	  case AircraftState.Lit => {
-	       log.info(s"Aircraft $transponderID is lit up.")	       
+      	  //if(behaviorMap.contains())
+      	  //var behavior = behaviorMap.get
+      	  case s: AircraftState => {
+	       log.info(s"We received a state change message.")	       
 	  }  
 
-	  case AircraftState.Taxiing => {
-	       log.info(s"Aircraft $transponderID is taxiing.")
-	  } 
+	  
       }
 
       def climb(newAltitude: Int) = {
@@ -57,7 +55,25 @@ class Aircraft(val transponderID: String, var _altitude: Int) extends Actor with
       	  _altitude = newAltitude;
       }
 
-      def addBehavior(state: AircraftState) = {
+      def addBehavior(state: AircraftState, behavior: AircraftBehavior) = {
       	  // TODO: figure out a Behavior class
+      }
+}
+
+
+
+class LitBehavior extends AircraftBehavior{
+      def trigger(target: Aircraft) = {
+      	  log.info("Triggering the aircraft light-up behavior.")
+      	  //log.info(s"Aircraft $transponderID is lit up.")   
+      }
+}
+
+
+class TaxiBehavior extends AircraftBehavior{
+
+      def trigger(target: Aircraft) = {
+      	  log.info("Triggering the aircraft taxi behavior.")
+      	  //log.info(s"Aircraft $transponderID is lit up.")   
       }
 }
