@@ -19,11 +19,11 @@ object AircraftState{
       case object InFlight extends AircraftState
 }
 
-/*
+
 abstract class AircraftBehavior{
       def trigger(target: Aircraft)
 }
-*/
+
 
 
 //class Aircraft(val transponderID, _altitude: Int) extends Actor with FSM[AircraftState, Data] {
